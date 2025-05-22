@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Event</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #e9f1ff, #f7faff);
+      color: #333;
+    }
+     nav {
+      background-color: #ffffff;
+      padding: 20px 40px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav .brand {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f65e6;
+    }
+
+    nav .user {
+      font-weight: 500;
+      color: #555;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      padding-right: 35px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      font-weight: bold;
+      color: grey;
+    }
+
+    select {
+      font-weight: bold;
+      color: grey;
+    }
+
+    .ticket-card {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f0f8ff;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .ticket-category {
+      margin-top: 15px;
+      padding: 15px;
+      background-color: #fff;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .ticket-category input {
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .add-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .edit-btn {
+      background-color: #ffc107;
+      color: white;
+    }
+
+    .save-btn {
+      background-color: #17a2b8;
+      color: white;
+    }
+
+    .submit-btn {
+      margin-top: 30px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      color: green;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .message {
+  margin-top: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: red;
+}
+  @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+     
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="brand">🎉 Event Planner</div>
+    <div class="user">Welcome, <%= user.name.charAt(0).toUpperCase() + user.name.slice(1)%> </div>
+  </nav>
+  
+  <h1>Create New Event</h1>
+  <form id="event-form">
+    <label for="event-name">Event's Name</label>
+    <input type="text" id="event-name" name="eventName" placeholder="Enter Your Event's Name" required>
+
+    <label for="category">Category</label>
+    <select id="category" name="category" required>
+      <option value="" disabled selected>Browse All</option>
+      <option value="conference">Conference</option>
+      <option value="workshop">Workshop</option>
+      <option value="concert">Concert</option>
+      <option value="webinar">Webinar</option>
+      <option value="party">Party</option>
+      <option value="festival">Festival</option>
+    </select>
+
+    <label for="event-date">Event Date</label>
+    <input type="date" id="event-date" name="eventDate" required>
+
+    <label for="start-time">Event's Start Time</label>
+    <input type="time" id="start-time" name="startTime" required>
+
+    <label for="location">Event's Location</label>
+    <input type="text" id="location" name="location" placeholder="Enter Your Event's Location" required>
+
+    <label for="description">Event Description</label>
+    <textarea id="description" name="description" placeholder="Describe Your Event"></textarea>
+
+    <div class="ticket-card">
+      <h2>Tickets Categories</h2>
+      <button type="button" class="btn add-btn" onclick="addTicketCategory()">Add Category</button>
+      <div id="tickets-container"></div>
+      <button type="button" class="btn edit-btn" onclick="toggleEdit(true)">Edit</button>
+      <button type="button" class="btn save-btn" onclick="saveChanges()">Save</button>
+      <div class="message" id="save-message"></div>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit Event</button>
+    <div class="message" id="submit-message"></div>
+    <div class="error" id="form-error"></div>
+  </form>
+
+<script>
+  let ticketCounter = 0;
+  let editable = true;
+
+  function addTicketCategory() {
+    const container = document.getElementById('tickets-container');
+    const div = document.createElement('div');
+    div.className = 'ticket-category';
+    div.innerHTML = `
+      <label>Name</label>
+      <input type="text" name="ticketName${ticketCounter}" placeholder="Enter Ticket's Name" required>
+
+      <label>Price</label>
+      <input type="text" name="ticketPrice${ticketCounter}" placeholder="Enter Ticket's Price" required>
+
+      <label>Available Places</label>
+      <input type="text" name="ticketPlaces${ticketCounter}" placeholder="Enter Number Of Available Places" required>
+    `;
+    container.appendChild(div);
+    ticketCounter++;
+  }
+
+  function toggleEdit(state) {
+    editable = state;
+    const inputs = document.querySelectorAll('.ticket-category input');
+    inputs.forEach(input => input.readOnly = !state);
+  }
+
+  function saveChanges() {
+    document.getElementById('save-message').textContent = 'All Your Changes Have Been Made Successfully';
+    toggleEdit(false);
+  }
+
+  document.getElementById('event-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const warning = document.getElementById('submit-message');
+    warning.style.color = 'red';
+
+    let valid = true;
+    let errorMessages = [];
+
+    const requiredFields = [
+      'event-name',
+      'category',
+      'event-date',
+      'start-time',
+      'location',
+      'description'
+    ];
+
+    requiredFields.forEach(id => {
+      const field = document.getElementById(id);
+      if (!field || field.value.trim() === '' || (field.tagName === 'SELECT' && field.value === '')) {
+        valid = false;
+        errorMessages.push(`Please fill out the ${field.previousElementSibling.innerText}`);
+      }
+    });
+
+    const ticketInputs = document.querySelectorAll('.ticket-category');
+    if (ticketInputs.length === 0) {
+      valid = false;
+      errorMessages.push("Please add at least one ticket category.");
+    }
+
+    ticketInputs.forEach((ticket, index) => {
+      const name = ticket.querySelector(`input[name^="ticketName"]`);
+      const price = ticket.querySelector(`input[name^="ticketPrice"]`);
+      const places = ticket.querySelector(`input[name^="ticketPlaces"]`);
+
+      if (!name.value.trim()) {
+        valid = false;
+        errorMessages.push(`Ticket ${index + 1}: Name is required.`);
+      }
+
+      if (!price.value.trim() || isNaN(price.value)) {
+        valid = false;
+        errorMessages.push(`Ticket ${index + 1}: Price must be a valid number.`);
+      }
+
+      if (!places.value.trim() || !Number.isInteger(Number(places.value)) || Number(places.value) <= 0) {
+        valid = false;
+        errorMessages.push(`Ticket ${index + 1}: Available Places must be a positive integer.`);
+      }
+    });
+
+    if (!valid) {
+      warning.innerHTML = errorMessages.join('<br>');
+      return;
+    }
+
+    warning.style.color = 'green';
+    warning.innerHTML = 'Your Event Has Been Created Successfully!';
+    setTimeout(() => {
+      window.location.href = '/choose-action'; // Adjust as needed
+    }, 5000);
+  });
+</script>
+</body>
+</html>

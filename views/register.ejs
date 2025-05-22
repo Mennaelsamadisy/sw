@@ -1,0 +1,14 @@
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+<div class="form-header">
+  <h2>Register</h2> <!-- Change to "Login" if needed -->
+</div>
+<form method="POST" action="/register">
+  <input name="name" placeholder="Name" required>
+  <input name="email" type="email" placeholder="Email" required>
+  <input name="password" type="password" placeholder="Password" required>
+  <input name="phone" type="tel" placeholder="Phone Number" required pattern="^01[0-2,5]{1}[0-9]{8}$"  required>
+  <button type="submit">Register</button>
+</form>

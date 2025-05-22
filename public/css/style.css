@@ -1,0 +1,119 @@
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background-color:  #e9f1ff;
+  padding: 20px;
+  margin: 0;
+  
+}
+.form-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  position: relative;
+}
+
+.form-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(to right, #e91e63, #570431);
+  transform: translateX(-50%);
+  border-radius: 10px;
+}
+
+
+#text{
+text-align: center;
+}
+h1{
+  color: #333;
+} 
+h2 {
+  color: #0f65e6;
+}
+h3{
+  color: #570431;
+  
+}
+form {
+  max-width: 420px;
+  margin: auto;
+  margin-top: 80px;
+  padding: 50px 40px 45px;
+  background: rgba(255, 255, 255, 0.9); /* semi-transparent */
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  position: relative;
+  backdrop-filter: blur(10px); /* glass effect */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+/* Optional glowing border effect on hover */
+form:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(87, 4, 49, 0.2);
+}
+
+/* Decorative top bar inside the form */
+form::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 6px;
+  width: 100%;
+  background: linear-gradient(to right, #570431, #e91e63);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+
+input, textarea, button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+button {
+  background-color: #570431;
+  margin-top: 20px;
+  color: white;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  border: none;
+  cursor: pointer;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(87, 4, 49, 0.2);
+}
+
+/* Hover effect */
+button:hover {
+  background-color: #77064d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(87, 4, 49, 0.3);
+}
+
+/* Optional active effect */
+button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(87, 4, 49, 0.2);
+}
+
+
+a {
+  color: #e91e63;
+  text-decoration: none;
+  text-shadow: 0 0 5px #e91e63, 0 0 10px #e91e63;
+}
+
+a:hover {
+  text-shadow: 0 0 10px #e91e63, 0 0 20px #e91e63;
+}
+

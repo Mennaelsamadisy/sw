@@ -1,0 +1,11 @@
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+<h2>Welcome, <%= user.name %></h2>
+<a href="/create-event">Create Event</a>
+<ul>
+  <% events.forEach(event => { %>
+    <li><strong><%= event.title %></strong> - <%= event.date %></li>
+  <% }) %>
+</ul>
