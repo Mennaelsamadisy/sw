@@ -47,7 +47,7 @@ app.get('/dashboard', async (req, res) => {
     const events = await pool.query('SELECT * FROM events WHERE user_id = $1', [req.session.user.id]);
     res.render('dashboard', { user: req.session.user, events: events.rows });
 });
-
+app.get('/explore',(req,res)=>res.render('events-list'));
 app.get('/create-event', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   res.render('create-event', { user: req.session.user });
@@ -66,7 +66,7 @@ app.get('/profile', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   res.render('profile', { user: req.session.user });
 });
-
+app.get('/settings',(req,res)=>res.render('settings.ejs'));
 app.listen(process.env.PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

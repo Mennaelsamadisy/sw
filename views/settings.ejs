@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .setting {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .setting label {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .setting button {
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .change-btn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .actions {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .actions button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .save-btn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .cancel-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .popup, .password-card {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-content, .password-content {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      width: 400px;
+    }
+
+    .popup-content h2, .password-content h3 {
+      margin-bottom: 10px;
+    }
+
+    .popup-content p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .popup-actions, .password-actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .input-group {
+      position: relative;
+      margin: 15px 0;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px 40px 10px 35px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .input-group .fa-lock, .input-group .fa-eye {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    .input-group .fa-lock {
+      left: 10px;
+    }
+
+    .input-group .fa-eye {
+      right: 10px;
+      cursor: pointer;
+    }
+
+    .success-message, .warning-message {
+      color: green;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .warning-message {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Settings</h2>
+
+    <div class="setting">
+      <label>Delete Account</label>
+      <button class="delete-btn" onclick="showDeletePopup()">Delete Account</button>
+    </div>
+
+    <div class="setting">
+      <label>Change Password</label>
+      <button class="change-btn" onclick="togglePasswordCard()">Change Your Password</button>
+    </div>
+
+    <div class="actions">
+      <button class="cancel-btn" onclick="window.location.href='profile'">Cancel</button>
+      <button class="save-btn" onclick="saveAllChanges()">Save</button>
+    </div>
+  </div>
+
+  <div class="popup" id="deletePopup">
+    <div class="popup-content">
+      <h2>DELETE YOUR ACCOUNT?</h2>
+      <p>Are You Sure You Want To Delete Your Account?</p>
+      <div class="popup-actions">
+        <button class="cancel-btn" onclick="hideDeletePopup()">Cancel</button>
+        <button class="delete-btn" onclick="deleteAccount()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup password-card" id="passwordCard">
+    <div class="password-content">
+      <h3>Do You Want To Change Your Password?</h3>
+
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="oldPassword" placeholder="Enter Your Old Password">
+        <i class="fas fa-eye" onclick="toggleVisibility('oldPassword', this)"></i>
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="newPassword" placeholder="Enter Your New Password">
+        <i class="fas fa-eye" onclick="toggleVisibility('newPassword', this)"></i>
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="confirmPassword" placeholder="Confirm Your New Password">
+        <i class="fas fa-eye" onclick="toggleVisibility('confirmPassword', this)"></i>
+      </div>
+
+      <div class="password-actions">
+        <button class="cancel-btn" onclick="togglePasswordCard()">Cancel</button>
+        <button class="save-btn" onclick="changePassword()">Save</button>
+      </div>
+      <div id="passwordMessage" class="success-message"></div>
+      <div id="passwordWarning" class="warning-message"></div>
+    </div>
+  </div>
+
+  <script>
+    function showDeletePopup() {
+      document.getElementById('deletePopup').style.display = 'flex';
+    }
+
+    function hideDeletePopup() {
+      document.getElementById('deletePopup').style.display = 'none';
+    }
+
+    function deleteAccount() {
+      // simulate delete then redirect
+      alert('Account deleted');
+      window.location.href = 'register';
+    }
+
+    function togglePasswordCard() {
+      const card = document.getElementById('passwordCard');
+      card.style.display = card.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function toggleVisibility(fieldId, icon) {
+      const field = document.getElementById(fieldId);
+      field.type = field.type === 'password' ? 'text' : 'password';
+      icon.classList.toggle('fa-eye');
+      icon.classList.toggle('fa-eye-slash');
+    }
+
+    function changePassword() {
+      const oldPassword = document.getElementById('oldPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const message = document.getElementById('passwordMessage');
+      const warning = document.getElementById('passwordWarning');
+
+      message.textContent = '';
+      warning.textContent = '';
+
+      if (!oldPassword || !newPassword || !confirmPassword) {
+        warning.textContent = 'Please fill all the fields.';
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        warning.textContent = 'Passwords do not match!';
+        return;
+      }
+
+      message.textContent = 'Your Password Has Been Changed Successfully!';
+      setTimeout(() => {
+        togglePasswordCard();
+      }, 5000);
+    }
+
+    function saveAllChanges() {
+      alert('All Your Changes Been Saved Successfully!');
+      window.location.href = 'profile';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Explore Events | Event Planner</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f8;
+    }
+
+    nav {
+      background-color: #fff;
+      padding: 20px 40px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 700;
+      color: #007BFF;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      color: #007BFF;
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .event-card {
+      background-color: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .event-card h3 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .event-card p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .event-card .location {
+      color: #007BFF;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+
+    .event-card button {
+      margin-top: auto;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .event-card button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="brand">🎟️ Event Planner</div>
+    <div class="user">Explore Events</div>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>Upcoming Events</h1>
+      <p>Select an event and book your ticket now!</p>
+    </div>
+
+    <div class="events-grid">
+      
+        <div class="event-card">
+          <h3></h3>
+          <p><strong>Date:</strong> </p>
+          <p><strong>Time:</strong> </p>
+          <p class="location"><i class="fas fa-map-marker-alt"></i> </p>
+          <form action="/event/" method="get">
+            <button type="submit">Book Ticket</button>
+          </form>
+        </div>
+      
+    </div>
+  </div>
+
+</body>
+</html>
