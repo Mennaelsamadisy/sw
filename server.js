@@ -242,6 +242,9 @@ app.listen(process.env.PORT, () => {
 const { v4: uuidv4 } = require('uuid');
 
 app.post('/create-event', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login'); // or res.status(401).send('Unauthorized')
+  }
   try {
     const {
       eventName,
