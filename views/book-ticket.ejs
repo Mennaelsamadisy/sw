@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Ticket</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .container { max-width: 600px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); font-family: Inter, sans-serif; }
+    h2 { text-align: center; color: #007BFF; }
+    select, input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; }
+    button { background: #28a745; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Book Ticket for <%= event.title %></h2>
+
+    <form method="POST" action="/book-ticket">
+      <input type="hidden" name="event_id" value="<%= event.id %>">
+
+      <label for="ticket_id">Select Ticket Type:</label>
+      <select name="ticket_id" required>
+        <% tickets.forEach(t => { %>
+          <option value="<%= t.id %>">
+            <%= t.category_name %> — $<%= t.category_price %> (Available: <%= t.remaining_tickets %>)
+          </option>
+        <% }) %>
+      </select>
+
+      <label for="quantity">Quantity:</label>
+      <input type="number" name="quantity" min="1" max="10" required>
+
+      <button type="submit">Book Now</button>
+    </form>
+  </div>
+</body>
+</html>

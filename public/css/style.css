@@ -109,6 +109,8 @@ button:active {
 
 a {
   color: #e91e63;
+  padding: 10px;
+  font-size: smaller;
   text-decoration: none;
   text-shadow: 0 0 5px #e91e63, 0 0 10px #e91e63;
 }

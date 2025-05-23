@@ -119,12 +119,7 @@ app.get('/choose-action', (req, res) => {
   res.render('choose-action', { user: req.session.user });
 });
 
-//app.get('/dashboard', async (req, res) => {
-  //  if (!req.session.user) return res.redirect('/login');
-    //const events = await pool.query('SELECT * FROM events WHERE user_id = $1', [req.session.user.id]);
-    //res.render('dashboard', { user: req.session.user, events: events.rows });
-//});
-//app.get('/explore',(req,res)=>res.render('events-list'));
+
 app.get('/explore',async(req,res)=>{
     try {
     const result = await pool.query(`
@@ -149,22 +144,21 @@ app.get('/explore',async(req,res)=>{
   }
 });
 
-app.get('/event/:id', async (req, res) => {
-  const { id } = req.params;
-  const result = await pool.query('SELECT * FROM events WHERE id = $1', [id]);
+//app.get('/event/:id', async (req, res) => {
+  //const { id } = req.params;
+  //const result = await pool.query('SELECT * FROM events WHERE id = $1', [id]);
 
-  if (result.rows.length === 0) {
-    return res.send('Event not found');
-  }
+  //if (result.rows.length === 0) {
+    //return res.send('Event not found');
+  //}
 
-  res.render('event-details', { event: result.rows[0] });
-});
+  //res.render('event-details', { event: result.rows[0] });
+//});
 
 app.get('/create-event', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   res.render('create-event', { user: req.session.user });
 });
-//app.get('/create-event',(req,res)=>res.render('create-event.ejs'));
 
 /* app.post('/create-event', async (req, res) => {
     const { title, description, date, time, location } = req.body;
@@ -236,9 +230,6 @@ app.listen(process.env.PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
 
-
-
-
 const { v4: uuidv4 } = require('uuid');
 
 app.post('/create-event', async (req, res) => {
@@ -309,11 +300,45 @@ app.post('/create-event', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).send('Error while logging out');
+    }
 
-app.use((req, res, next) => {
-  if (!req.session.user) {
-    req.session.user = { id: '2aca1f95-4fdb-47ff-9840-a59382e77a5e' }; // real UUID from DB
-  }
-  next();
+    res.clearCookie('connect.sid'); // clears the session cookie
+    res.redirect('/login'); // redirect to login or homepage
+  });
 });
+app.get('/event/:id', async (req, res) => {
+  const eventId = req.params.id;
+
+  const eventResult = await pool.query(`
+    SELECT e.*, c.name AS organizer
+    FROM events e
+    JOIN clients c ON e.client_id = c.id
+    WHERE e.id = $1
+  `, [eventId]);
+
+  const ticketResult = await pool.query(`
+    SELECT * FROM ticketcategories WHERE event_id = $1
+  `, [eventId]);
+
+  if (eventResult.rows.length === 0) {
+    return res.send('Event not found.');
+  }
+
+  res.render('book-ticket', {
+    event: eventResult.rows[0],
+    tickets: ticketResult.rows
+  });
+});
+
+//app.use((req, res, next) => {
+  //if (!req.session.user) {
+    //req.session.user = { id: '2aca1f95-4fdb-47ff-9840-a59382e77a5e' }; // real UUID from DB
+  //}
+  //next();
+//});
 
