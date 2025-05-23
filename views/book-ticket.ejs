@@ -23,7 +23,7 @@
       <select name="ticket_id" required>
         <% tickets.forEach(t => { %>
           <option value="<%= t.id %>">
-            <%= t.category_name %> — $<%= t.category_price %> (Available: <%= t.remaining_tickets %>)
+            <%= t.category_name %> — EGP<%= t.category_price %> (Available: <%= t.remaining_tickets %>)
           </option>
         <% }) %>
       </select>
