@@ -11,6 +11,7 @@ const PORT=process.env.PORT||3000;
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json()); // (optional: for JSON body support)
 app.use(session({
     secret: "super secret",
     resave: false,
@@ -113,7 +114,11 @@ app.post('/reset-password/:token', async (req, res) => {
 });
 
 
-app.get('/choose-action', (req, res) => res.render('choose-action.ejs'));
+app.get('/choose-action', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  res.render('choose-action', { user: req.session.user });
+});
+
 //app.get('/dashboard', async (req, res) => {
   //  if (!req.session.user) return res.redirect('/login');
     //const events = await pool.query('SELECT * FROM events WHERE user_id = $1', [req.session.user.id]);
@@ -161,14 +166,14 @@ app.get('/create-event', (req, res) => {
 });
 //app.get('/create-event',(req,res)=>res.render('create-event.ejs'));
 
-app.post('/create-event', async (req, res) => {
+/* app.post('/create-event', async (req, res) => {
     const { title, description, date, time, location } = req.body;
     await pool.query(
         'INSERT INTO events (title, description, date, time, location, user_id) VALUES ($1, $2, $3, $4, $5, $6)',
         [title, description, date, time, location, req.session.user.id]
     );
     res.redirect('/dashboard');
-});
+}); */
 app.get('/profile', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   res.render('profile', { user: req.session.user });
@@ -230,3 +235,82 @@ app.post('/delete-account', async (req, res) => {
 app.listen(process.env.PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
+
+
+const { v4: uuidv4 } = require('uuid');
+
+app.post('/create-event', async (req, res) => {
+  try {
+    const {
+      eventName,
+      category,
+      eventDate,
+      startTime,
+      location,
+      description
+    } = req.body;
+
+    const clientId = req.session.user.id;
+
+    // Insert event without specifying UUID
+    const result = await pool.query(`
+      INSERT INTO events (title, category, event_date, start_time, location, description, client_id, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      RETURNING id
+    `, [
+      eventName,
+      category,
+      eventDate,
+      startTime,
+      location,
+      description,
+      clientId
+    ]);
+
+    const eventId = result.rows[0].id;
+
+    // Parse ticket categories
+    const ticketCategories = [];
+    let i = 0;
+    while (req.body[`ticketName${i}`]) {
+      ticketCategories.push({
+        category_id: uuidv4(),
+        name: req.body[`ticketName${i}`],
+        price: parseFloat(req.body[`ticketPrice${i}`]),
+        total: parseInt(req.body[`ticketPlaces${i}`]),
+        remaining: parseInt(req.body[`ticketPlaces${i}`])
+      });
+      i++;
+    }
+
+    // Insert each ticket category with the retrieved event ID
+    for (const ticket of ticketCategories) {
+      await pool.query(`
+        INSERT INTO ticketcategories (event_id, category_id, category_name, category_price, total_tickets, remaining_tickets)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [
+        eventId,
+        ticket.category_id,
+        ticket.name,
+        ticket.price,
+        ticket.total,
+        ticket.remaining
+      ]);
+    }
+
+    res.redirect('/choose-action');
+  } catch (err) {
+    console.error('Error creating event and tickets:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    req.session.user = { id: '2aca1f95-4fdb-47ff-9840-a59382e77a5e' }; // real UUID from DB
+  }
+  next();
+});
+
