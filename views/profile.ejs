@@ -3,294 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <title>User Profile</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
     body {
-      margin: 0;
-      padding: 0;
       font-family: 'Inter', sans-serif;
       background: linear-gradient(to right, #e9f1ff, #f7faff);
-      color: #333;
+      margin: 0;
+      padding: 0;
     }
+
     nav {
-      background-color: #ffffff;
+      background-color: #fff;
       padding: 20px 40px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
-    nav .brand {
+    .brand {
       font-size: 24px;
-      font-weight: 700;
-      color: #0f65e6;
+      font-weight: bold;
+      color: #007BFF;
     }
 
-    nav .user {
-      font-weight: 500;
+    .user {
+      font-size: 16px;
       color: #555;
     }
+
     .container {
       max-width: 600px;
-      margin: auto;
-      margin-top: 25px;
-      margin-bottom: 25px;
+      margin: 30px auto;
       background: #fff;
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
       text-align: center;
+      margin-bottom: 20px;
       color: #333;
     }
-    .info{
-      padding-right: 15px;
-    }
-    .info label {
-      font-weight: bold;
+
+    form label {
+      font-weight: 600;
       margin-top: 15px;
       display: block;
     }
 
-    .info input, .info textarea {
+    form input {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
-      border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 16px;
-      background-color: #f9f9f9;
+      border-radius: 6px;
+      background: #f9f9f9;
     }
 
-    .info input[readonly], .info textarea[readonly] {
-      background-color: #f0f0f0;
+    input[readonly] {
+      background-color: #eee;
     }
 
     .buttons {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
+      justify-content: flex-start;
       margin-top: 20px;
-    }
-
-    .buttons button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
+      gap: 10px;
     }
 
     .edit-btn {
-      background-color: #ffc107;
+      background: #ffc107;
       color: #000;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
     }
 
     .save-btn {
-      background-color: #28a745;
-      color: white;
+      background: #28a745;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
     }
 
-    .message, .warning {
-      text-align: center;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-
-    .message {
-      color: green;
-      display: none;
-    }
-
-    .warning {
-      color: red;
-      display: none;
-    }
-
-    .nav-buttons {
-      margin-top: 40px;
+    .settings {
+      margin-top: 30px;
       display: flex;
       justify-content: space-between;
     }
 
-    .nav-buttons button {
+    .settings button {
       background: none;
       border: none;
-      font-size: 16px;
-      cursor: pointer;
-      color: #007bff;
-    }
-
-    .nav-buttons i {
-      margin-right: 8px;
-    }
-
-    .signout-popup {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .signout-content {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .signout-content h2 {
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-
-    .signout-content p {
-      font-size: 14px;
-      color: #555;
-    }
-
-    .signout-actions {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .signout-actions button {
-      padding: 8px 20px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
+      color: #007BFF;
+      font-size: 15px;
       cursor: pointer;
     }
 
-    .cancel-btn {
-      background-color: #6c757d;
-      color: white;
-    }
-
-    .confirm-signout-btn {
-      background-color: #dc3545;
-      color: white;
-    }
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      nav {
-        flex-direction: column;
-        gap: 10px;
-      }
-    }
   </style>
 </head>
 <body>
   <nav>
     <div class="brand">🎉 Event Planner</div>
-    <div class="user">Welcome, <%= user.name.charAt(0).toUpperCase() + user.name.slice(1)%> </div>
+    <div class="user">Welcome, <%= user.name.charAt(0).toUpperCase() + user.name.slice(1) %></div>
   </nav>
+
   <div class="container">
-    <h1>Welcome, <span id="userName">John Doe</span></h1>
+    <h1>Profile</h1>
+    <form id="profileForm" method="POST" action="/update-profile">
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" value="<%= user.name %>" readonly>
 
-    <div class="info">
-      <label>Name</label>
-      <input type="text" id="name" value="John Doe" readonly>
+      <label for="email">Email</label>
+      <input type="email" id="email" value="<%= user.email %>" readonly>
 
-      <label>Username</label>
-      <input type="text" id="username" value="johnny" readonly>
-
-      <label>Email Address</label>
-      <input type="text" id="email" value="john@example.com" readonly>
-
-      <label>Phone Number</label>
-      <input type="text" id="phone" value="123-456-7890" readonly>
-
-      <label>Bio</label>
-      <textarea id="bio" rows="4" readonly>This is a short bio...</textarea>
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" value="<%= user.phone_number %>" readonly>
 
       <div class="buttons">
-        <button class="edit-btn" onclick="toggleEdit(true)">Edit</button>
-        <button class="save-btn" onclick="saveChanges()">Save</button>
+        <button type="button" class="edit-btn" onclick="enableEdit()">Edit</button>
+        <button type="submit" class="save-btn">Save</button>
       </div>
+    </form>
 
-      <div id="saveMessage" class="message">All Your Changes Have Been Made Successfully!</div>
-      <div id="warningMessage" class="warning">Please fill in all fields before saving and ensure formats are correct.</div>
-    </div>
-
-    <div class="nav-buttons">
-      <button onclick="location.href='settings'"><i class="fas fa-cog"></i> Settings</button>
-      <button onclick="showSignOut()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-    </div>
-  </div>
-
-  <!-- Sign Out Popup -->
-  <div class="signout-popup" id="signOutPopup">
-    <div class="signout-content">
-      <h2>Sign Out?</h2>
-      <p>Are You Sure, You Want To Sign Out?</p>
-      <div class="signout-actions">
-        <button class="cancel-btn" onclick="hideSignOut()">Cancel</button>
-        <button class="confirm-signout-btn" onclick="confirmSignOut()">Sign Out</button>
-      </div>
+    <div class="settings">
+      <button onclick="location.href='/change-password'"><i class="fas fa-key"></i> Change Password</button>
+      <button onclick="location.href='/delete-account'"><i class="fas fa-trash-alt"></i> Delete Account</button>
     </div>
   </div>
 
   <script>
-    function toggleEdit(enable) {
-      document.querySelectorAll('#name, #username, #email, #phone, #bio').forEach(input => {
-        input.readOnly = !enable;
-        input.style.backgroundColor = enable ? '#fff' : '#f0f0f0';
-      });
-    }
-
-    function saveChanges() {
-      const name = document.getElementById('name').value.trim();
-      const username = document.getElementById('username').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const bio = document.getElementById('bio').value.trim();
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const phoneRegex = /^[0-9\-\+\s\(\)]+$/;
-
-      if (!name || !username || !email || !phone || !bio ||
-          !emailRegex.test(email) || !phoneRegex.test(phone)) {
-        document.getElementById('warningMessage').style.display = 'block';
-        document.getElementById('saveMessage').style.display = 'none';
-        return;
-      }
-
-      document.getElementById('warningMessage').style.display = 'none';
-      toggleEdit(false);
-      document.getElementById('saveMessage').style.display = 'block';
-      setTimeout(() => {
-        document.getElementById('saveMessage').style.display = 'none';
-      }, 3000);
-    }
-
-    function showSignOut() {
-      document.getElementById('signOutPopup').style.display = 'flex';
-    }
-
-    function hideSignOut() {
-      document.getElementById('signOutPopup').style.display = 'none';
-    }
-
-    function confirmSignOut() {
-      window.location.href = 'login';
+    function enableEdit() {
+      const input = document.getElementById('name');
+      input.removeAttribute('readonly');
+      input.style.backgroundColor = '#fff';
     }
   </script>
-
 </body>
 </html>
-

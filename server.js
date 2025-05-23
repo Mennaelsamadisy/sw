@@ -114,12 +114,47 @@ app.post('/reset-password/:token', async (req, res) => {
 
 
 app.get('/choose-action', (req, res) => res.render('choose-action.ejs'));
-app.get('/dashboard', async (req, res) => {
-    if (!req.session.user) return res.redirect('/login');
-    const events = await pool.query('SELECT * FROM events WHERE user_id = $1', [req.session.user.id]);
-    res.render('dashboard', { user: req.session.user, events: events.rows });
+//app.get('/dashboard', async (req, res) => {
+  //  if (!req.session.user) return res.redirect('/login');
+    //const events = await pool.query('SELECT * FROM events WHERE user_id = $1', [req.session.user.id]);
+    //res.render('dashboard', { user: req.session.user, events: events.rows });
+//});
+//app.get('/explore',(req,res)=>res.render('events-list'));
+app.get('/explore',async(req,res)=>{
+    try {
+    const result = await pool.query(`
+      SELECT 
+        events.id, 
+        events.title, 
+        events.category, 
+        events.event_date, 
+        events.start_time, 
+        events.location, 
+        events.description,
+        clients.name AS organizer_name
+      FROM events
+      JOIN clients ON events.client_id = clients.id
+      ORDER BY event_date ASC
+    `);
+
+    res.render('events-list', { events: result.rows });
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).send('Server error while loading events.');
+  }
 });
-app.get('/explore',(req,res)=>res.render('events-list'));
+
+app.get('/event/:id', async (req, res) => {
+  const { id } = req.params;
+  const result = await pool.query('SELECT * FROM events WHERE id = $1', [id]);
+
+  if (result.rows.length === 0) {
+    return res.send('Event not found');
+  }
+
+  res.render('event-details', { event: result.rows[0] });
+});
+
 app.get('/create-event', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   res.render('create-event', { user: req.session.user });
@@ -138,7 +173,60 @@ app.get('/profile', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   res.render('profile', { user: req.session.user });
 });
-app.get('/settings',(req,res)=>res.render('settings.ejs'));
+
+app.post('/update-profile', async (req, res) => {
+  const { name } = req.body;
+  const userId = req.session.user.id;
+
+  await pool.query(
+    `UPDATE clients SET name = $1 WHERE id = $2`,
+    [name, userId]
+  );
+
+  // Update session
+  req.session.user.name = name;
+
+  res.redirect('/profile');
+});
+
+app.get('/change-password', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  res.render('change-password');
+});
+
+app.post('/change-password', async (req, res) => {
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+  const userId = req.session.user.id;
+
+  const result = await pool.query('SELECT * FROM clients WHERE id = $1', [userId]);
+  const user = result.rows[0];
+
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) return res.send('Incorrect current password');
+
+  if (newPassword !== confirmPassword) return res.send('Passwords do not match');
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE clients SET password = $1 WHERE id = $2', [hashed, userId]);
+
+  res.send('Password changed successfully. <a href="/profile">Go back to profile</a>');
+});
+
+app.get('/delete-account', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  res.render('delete-account');
+});
+
+app.post('/delete-account', async (req, res) => {
+  const userId = req.session.user.id;
+
+  await pool.query('DELETE FROM clients WHERE id = $1', [userId]);
+  req.session.destroy(); // logout the user
+  res.send('Your account has been deleted. <a href="/register">Register Again</a>');
+});
+
+
+//app.get('/settings',(req,res)=>res.render('settings.ejs'));
 app.listen(process.env.PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
