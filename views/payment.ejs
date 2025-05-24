@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 40px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .button:hover {
+      background-color: #218838;
+    }
+
+    .warning, .note {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .note {
+      font-size: 18px;
+      display: block;
+      text-align: center;
+    }
+
+    #successMessage {
+      color: green;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+
+
+
+<body>
+  <div class="container">
+    <h2>Total Amount: $<%= payment.price %></h2>
+    <input type="hidden" id="ticketType" value="<%= payment.ticketType %>">
+    <input type="hidden" id="eventId" value="<%= payment.eventId %>">
+
+    <label for="cardNumber">Card Number</label>
+    <input type="text" id="cardNumber" placeholder="Enter Card Number">
+    <div id="cardWarning" class="warning">Please enter a valid card number.</div>
+
+    <label for="cardName">Card Holder Name</label>
+    <input type="text" id="cardName" placeholder="Enter Name on Card">
+    <div id="nameWarning" class="warning">Please enter the name on card.</div>
+
+    <label for="expiry">Expiry Date</label>
+    <input type="text" id="expiry" placeholder="MM/YY">
+    <div id="expiryWarning" class="warning">Please enter a valid expiry date.</div>
+
+    <label for="cvv">CVV</label>
+    <input type="password" id="cvv" placeholder="CVV">
+    <div id="cvvWarning" class="warning">Please enter CVV.</div>
+
+    <button class="button" onclick="sendOTP()">Pay Now</button>
+
+    <div id="otpSection" style="display:none;">
+      <form id="otp-form" action="/verify-payment" method="POST">
+        <label for="otp">Enter OTP sent to your email</label>
+        <input type="text" name="otp" placeholder="Enter OTP" required>
+        <div id="otpWarning" class="warning">Incorrect OTP.</div>
+        <button type="submit" class="button">Verify OTP</button>
+      </form>
+    </div>
+
+    <div id="successMessage">Your Ticket Has Been Sent Successfully as a QR Code to Your Email!</div>
+    <div class="note">Note: The ticket is unique, cannot be resent, and can only be used once.</div>
+  </div>
+
+  <script>
+    function sendOTP() {
+      const cardNumber = document.getElementById('cardNumber').value;
+      const cardName = document.getElementById('cardName').value;
+      const expiry = document.getElementById('expiry').value;
+      const cvv = document.getElementById('cvv').value;
+      let valid = true;
+
+      document.querySelectorAll('.warning').forEach(el => el.style.display = 'none');
+
+      if (!cardNumber.match(/^\d{16}$/)) {
+        document.getElementById('cardWarning').style.display = 'block';
+        valid = false;
+      }
+      if (!cardName.trim()) {
+        document.getElementById('nameWarning').style.display = 'block';
+        valid = false;
+      }
+      if (!expiry.match(/^(0[1-9]|1[0-2])\/\d{2}$/)) {
+        document.getElementById('expiryWarning').style.display = 'block';
+        valid = false;
+      }
+      if (!cvv.match(/^\d{3}$/)) {
+        document.getElementById('cvvWarning').style.display = 'block';
+        valid = false;
+      }
+
+      if (valid) {
+        fetch('/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('✅ OTP has been sent to your email.');
+            document.getElementById('otpSection').style.display = 'block';
+          } else {
+            alert('❌ Failed to send OTP.');
+          }
+        })
+        .catch(() => alert('❌ Error sending OTP.'));
+      }
+    }
+  </script>
+  
+</body>
+</html>

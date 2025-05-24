@@ -296,7 +296,6 @@
           valid = false;
           errorMessages.push(`Ticket ${index + 1}: Price must be a valid number.`);
         }
-
         if (!places.value.trim() || !Number.isInteger(Number(places.value)) || Number(places.value) <= 0) {
           valid = false;
           errorMessages.push(`Ticket ${index + 1}: Available Places must be a positive integer.`);

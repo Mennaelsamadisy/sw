@@ -342,3 +342,176 @@ app.get('/event/:id', async (req, res) => {
   //next();
 //});
 
+/*  app.post('/book-ticket', (req, res) => {
+  const { eventId, ticketType, price } = req.body;
+  console.log(ticketType);
+  
+  // Option 1: Pass data using query string (if not sensitive)
+   //res.redirect(`/payment?eventId=${eventId}&ticketType=${ticketType}&price=${price}`);
+
+  // Option 2: Use session to pass data securely (recommended for pricing, IDs)
+  req.session.paymentDetails = { eventId, ticketType, price };
+  res.redirect('/payment');
+});  */
+
+app.post('/book-ticket', async (req, res) => {
+  try {
+    const { event_id, ticket_id, quantity } = req.body;
+
+    // 🛡️ Dev fallback in case session.user isn't set (REMOVE in production)
+    if (!req.session.user) {
+      req.session.user = {
+        id: 'PUT-A-REAL-CLIENT-ID-HERE',
+        email: 'test@example.com'
+      };
+    }
+
+    // ✅ Get ticket info
+    const ticketRes = await pool.query(
+      'SELECT category_id, category_price, category_name FROM ticketcategories WHERE category_id = $1',
+      [ticket_id]
+    );
+
+    if (ticketRes.rowCount === 0) {
+      return res.status(400).send('Invalid ticket category selected.');
+    }
+
+    const ticket = ticketRes.rows[0];
+
+    // ✅ Store in session for use in /payment and /verify-payment
+    req.session.paymentDetails = {
+      category_id: ticket_id,
+      ticketType: ticket.category_name,
+      price: ticket.category_price,
+      quantity: parseInt(quantity),
+      eventId: event_id,
+      email: req.session.user.email
+    };
+
+    res.redirect('/payment');
+  } catch (err) {
+    console.error('❌ Error in /book-ticket:', err);
+    res.status(500).send('Server error while booking ticket.');
+  }
+});
+
+
+
+app.get('/payment', (req, res) => {
+  const payment = req.session.paymentDetails;
+  res.render('payment', { payment });
+
+});
+
+const QRCode = require('qrcode');
+
+
+
+app.post('/verify-payment', async (req, res) => {
+  try {
+    const enteredOTP = req.body.otp;
+    const sentOTP = req.session.otp;
+    const clientId = req.session.user.id;
+    const payment = req.session.paymentDetails;
+
+    // Step 1: Validate session + OTP
+    if (!payment || !enteredOTP || enteredOTP !== sentOTP) {
+      return res.status(400).send('Invalid OTP or session expired');
+    }
+
+    const { category_id, quantity, email } = payment;
+
+    // Step 2: Check remaining ticket availability
+    const ticketRes = await pool.query(
+      'SELECT remaining_tickets FROM ticketcategories WHERE category_id = $1',
+      [category_id]
+    );
+
+    if (ticketRes.rowCount === 0) {
+      console.log(category_id);
+      return res.status(404).send('Ticket category not found');
+    }
+
+    const remaining = ticketRes.rows[0].remaining_tickets;
+    if (remaining < quantity) {
+      return res.status(400).send('Not enough tickets available');
+    }
+    console.log('Payment session details:', req.session.paymentDetails);
+
+    // Step 3: Insert booking (let DB generate ticket_id)
+    const bookingRes = await pool.query(
+      `INSERT INTO bookings (category_id, client_id, quantity, booked_at)
+       VALUES ($1, $2, $3, NOW())
+       RETURNING ticket_id`,
+      [category_id, clientId, quantity]
+    );
+
+    const ticket_id = bookingRes.rows[0].ticket_id;
+
+    // Step 4: Update remaining_tickets
+    await pool.query(
+      `UPDATE ticketcategories
+       SET remaining_tickets = remaining_tickets - $1
+       WHERE category_id = $2`,
+      [quantity, category_id]
+    );
+
+    // Step 5: Generate QR Code
+    const qrData = `Ticket ID: ${ticket_id}\nClient ID: ${clientId}\nCategory: ${category_id}\nQuantity: ${quantity}`;
+    const qrBuffer = await QRCode.toBuffer(qrData);
+
+    // Step 6: Send Email with QR
+    await sendTicketEmail(email, qrBuffer);
+
+    // Step 7: Clean up session
+    delete req.session.otp;
+    delete req.session.paymentDetails;
+
+    res.send('✅ Booking confirmed! Ticket has been emailed.');
+  } catch (err) {
+    console.error('❌ Error verifying payment:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+const { sendOtpEmail, sendTicketEmail } = require('./utils/email');
+
+
+
+app.post('/send-otp', async (req, res) => {
+  try {
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const userEmail = req.session.user.email;
+
+    req.session.otp = otp;
+
+    // You can reuse or add this function in utils/email.js
+    await sendOtpEmail(userEmail, otp);
+
+    res.json({ success: true, message: 'OTP sent to your email' });
+  } catch (err) {
+    console.error('Error sending OTP:', err);
+    res.status(500).json({ success: false, message: 'Failed to send OTP' });
+  }
+});
+
+
+
+//*****************************just for debug
+
+app.post('/test-send-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // 1. Generate simple QR
+    const qrBuffer = await QRCode.toBuffer(`Test Ticket QR for ${email}`);
+
+    // 2. Send it
+    await sendTicketEmail(email, qrBuffer);
+
+    res.send('✅ Email sent successfully to: ' + email);
+  } catch (err) {
+    console.error('❌ Email send failed:', err);
+    res.status(500).send('❌ Failed to send email');
+  }
+});
