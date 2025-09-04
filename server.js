@@ -13,7 +13,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // (optional: for JSON body support)
 app.use(session({
-    secret: "super secret",
+    secret: "",
     resave: false,
     saveUninitialized: true
 }));
@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    pass: process.env.EMAIL_PASS,
   }
 });
 // Routes
@@ -341,4 +341,5 @@ app.get('/event/:id', async (req, res) => {
   //}
   //next();
 //});
+
 
